@@ -37,11 +37,11 @@ jobs:
       - name: Copy .env.example to .env.testing
         run: cp .env.example .env.testing
 
-      - name: Generate application key
-        run: php artisan key:generate --env=testing
-
       - name: Install PHP dependencies
         run: composer install --prefer-dist --no-interaction --no-progress --no-suggest
+
+      - name: Generate application key
+        run: php artisan key:generate --env=testing
 
       - name: Run database migrations
         run: php artisan migrate --env=testing
