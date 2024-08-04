@@ -17,39 +17,46 @@ jobs:
           --health-timeout=5s
           --health-retries=3
         env:
-          MYSQL_ROOT_PASSWORD: root
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_DATABASE: laravel
+        ports:
+          - 3306:3306
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup PHP
+      - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.2
           extensions: mbstring, pdo, pdo_mysql, xml
 
+      - name: Cache Composer dependencies
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress --no-suggest
+
       - name: Copy .env.ci to .env.testing
         run: cp .env.ci .env.testing
-
-      - name: Wait for MySQL to be ready
-        run: |
-          for i in {1..30}; do
-            if mysqladmin ping -h127.0.0.1 --silent; then
-              break
-            fi
-            sleep 1
-          done
-
-      - name: Install PHP dependencies
-        run: composer install --prefer-dist --no-interaction --no-progress --no-suggest
 
       - name: Generate application key
         run: php artisan key:generate --env=testing
 
       - name: Run database migrations
         run: php artisan migrate --env=testing --force
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: laravel
+          DB_USERNAME: root
+          DB_PASSWORD: ''
 
       - name: Run Laravel tests
-        run: php artisan test --env=testing
+        run: php artisan test
