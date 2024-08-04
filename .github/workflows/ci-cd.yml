@@ -11,26 +11,18 @@ jobs:
     services:
       mysql:
         image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: testdb
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
-    env:
-      DB_CONNECTION: mysql
-      DB_HOST: 127.0.0.1
-      DB_PORT: 3306
-      DB_DATABASE: testdb
-      DB_USERNAME: root
-      DB_PASSWORD: root
-      APP_ENV: testing
-      APP_KEY: ${{ secrets.APP_KEY }}
-      APP_URL: http://localhost
-      CACHE_DRIVER: array
-      SESSION_DRIVER: array
-      QUEUE_CONNECTION: sync
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test
+          MYSQL_USER: test
+          MYSQL_PASSWORD: test
 
     steps:
       - name: Checkout code
@@ -40,9 +32,20 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.2
+          extensions: mbstring, pdo, pdo_mysql, xml
+          coverage: none
 
-      - name: Install Composer dependencies
+      - name: Copy .env.example to .env.testing
+        run: cp .env.example .env.testing
+
+      - name: Generate application key
+        run: php artisan key:generate --env=testing
+
+      - name: Install PHP dependencies
         run: composer install --prefer-dist --no-interaction --no-progress --no-suggest
+
+      - name: Run database migrations
+        run: php artisan migrate --env=testing
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -52,14 +55,11 @@ jobs:
       - name: Install Node dependencies
         run: npm install
 
-      - name: Build assets
-        run: npm run build
+      - name: Run Svelte tests
+        run: npm test
 
       - name: Run Laravel tests
         run: php artisan test --env=testing
-
-      - name: Run Svelte tests
-        run: npm run test
 
   deploy:
     runs-on: ubuntu-latest
@@ -83,7 +83,10 @@ jobs:
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_IP: ${{ secrets.SERVER_IP }}
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-agent bash -c 'ssh-add ~/.ssh/id_rsa; ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << EOF
             cd /var/www/mgx-dashboard
             git pull origin master
             composer install --prefer-dist --no-interaction --no-progress --no-suggest
@@ -94,4 +97,4 @@ jobs:
             php artisan route:cache
             php artisan view:cache
             sudo service apache2 restart
-          EOF
+          EOF'
