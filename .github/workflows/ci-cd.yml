@@ -44,7 +44,7 @@ jobs:
         run: php artisan key:generate --env=testing
 
       - name: Run database migrations
-        run: php artisan migrate --env=testing
+        run: php artisan migrate --env=testing --force
 
       - name: Run Laravel tests
         run: php artisan test --env=testing
