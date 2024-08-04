@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { describe, it, expect, vi } from 'vitest';
-import Login from '../../../../resources/js/Pages/Auth/Login.svelte';
+import Login from '../../../Pages/Auth/Login.svelte';
 import { router } from '@inertiajs/svelte';
 
 vi.mock('@inertiajs/svelte', async (importOriginal) => {

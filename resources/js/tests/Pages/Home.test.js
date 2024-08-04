@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
 import { expect, test, describe, beforeEach, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import Home from '../../../resources/js/Pages/Home.svelte';
+import Home from '../../Pages/Home.svelte';
 import { router, page } from '@inertiajs/svelte';
 
 // Mock the `page` store and `router` from `@inertiajs/svelte`

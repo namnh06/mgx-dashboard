@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/svelte';
 import { expect, test, describe } from 'vitest';
-import Footer from '../../../resources/js/Shared/Footer.svelte';
+import Footer from '../../Shared/Footer.svelte';
 
 describe('Footer component', () => {
   test('renders the footer with correct text', () => {

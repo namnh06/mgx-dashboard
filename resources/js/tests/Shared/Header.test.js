@@ -1,6 +1,6 @@
 import { render } from '@testing-library/svelte';
 import { expect, test, describe } from 'vitest';
-import Header from '../../../resources/js/Shared/Header.svelte';
+import Header from '../../Shared/Header.svelte';
 
 describe('Header component', () => {
   test('sets the correct document title', () => {

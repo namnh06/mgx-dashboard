@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/svelte';
 import { expect, test, describe, beforeEach, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import Dashboard from '../../../resources/js/Pages/Dashboard.svelte';
+import Dashboard from '../../Pages/Dashboard.svelte';
 import { router } from '@inertiajs/svelte';
 
 // Mock the `router` from `@inertiajs/svelte`
