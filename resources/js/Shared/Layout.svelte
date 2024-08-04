@@ -10,4 +10,3 @@
     <slot></slot>
 </main>
 <Footer/>
-
