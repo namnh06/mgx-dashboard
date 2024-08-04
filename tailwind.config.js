@@ -1,15 +1,20 @@
-import daisyui from "daisyui";
-
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
       './resources/**/*.svelte',
   ],
   theme: {
-    extend: {},
+    extend: {
+        colors: {
+            primary: {
+                DEFAULT: 'hsl(2 71% 60% / var(--tw-bg-opacity))'
+            }
+        }
+    },
   },
   plugins: [
-      daisyui
+      require('daisyui'),
+      require('@tailwindcss/forms'),
   ],
 }
 
