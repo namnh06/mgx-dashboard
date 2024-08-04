@@ -88,6 +88,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << 'EOF'
             cd /var/www/mgx-dashboard
+            sudo chown -R $USER:$USER /var/www/mgx-dashboard
             git pull origin master
             composer install --prefer-dist --no-interaction --no-progress --no-suggest
             npm install
@@ -96,5 +97,6 @@ jobs:
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
+            sudo chown -R www-data:www-data /var/www/mgx-dashboard
             sudo service apache2 restart
           EOF
