@@ -91,8 +91,6 @@ jobs:
             sudo chown -R $USER:$USER /var/www/mgx-dashboard
             git pull origin master
             composer install --prefer-dist --no-interaction --no-progress --no-suggest
-            npm install
-            npm run build
             php artisan migrate --force
             php artisan config:cache
             php artisan route:cache
