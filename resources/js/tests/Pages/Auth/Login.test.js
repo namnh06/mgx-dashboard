@@ -45,6 +45,20 @@ describe('Login component', () => {
     expect(screen.getByText(errors.password)).toBeInTheDocument();
   });
 
+  it('renders the Sign in button', () => {
+    render(Login);
+
+    const signInButton = screen.getByRole('button', { name: /Sign in/i });
+    expect(signInButton).toBeInTheDocument();
+  });
+
+  it('renders the Register link', () => {
+    render(Login);
+
+    const registerLinks = screen.getAllByRole('link', { name: /Register/i });
+    expect(registerLinks.length).toBeGreaterThan(0);
+  });
+
   it('submits the form with correct values', async () => {
     render(Login);
 

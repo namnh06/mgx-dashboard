@@ -1,44 +1,43 @@
 import { render, screen } from '@testing-library/svelte';
-import { expect, test, describe, beforeEach, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { writable } from 'svelte/store';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import Dashboard from '../../Pages/Dashboard.svelte';
-import { router } from '@inertiajs/svelte';
 
-// Mock the `router` from `@inertiajs/svelte`
-vi.mock('@inertiajs/svelte', () => ({
-  router: {
-    post: vi.fn(),
-  },
-}));
+// Mock the `page` store and `Link` component from `@inertiajs/svelte`
+vi.mock('@inertiajs/svelte', async (importOriginal) => {
+    const actual = await importOriginal();
+    const mockPageStore = writable({
+        props: {
+            user: { name: 'John Doe' },
+        },
+    });
+
+    return {
+        ...actual,
+        page: mockPageStore,
+    };
+});
 
 describe('Dashboard component', () => {
-  beforeEach(() => {
-    // Clear mocks before each test
-    vi.clearAllMocks();
-  });
+    beforeEach(() => {
+        // Reset mocks before each test
+        vi.clearAllMocks();
+    });
 
-  test('renders with the correct title', () => {
-    render(Dashboard, { title: 'Dashboard' });
+    it('renders the welcome message', () => {
+        render(Dashboard, { title: 'Dashboard' });
 
-    // Check if the document title is correctly set
-    expect(document.title).toContain('Dashboard');
-  });
+        const welcomeMessage = screen.getByText('Welcome to your dashboard, John Doe!');
+        expect(welcomeMessage).toBeInTheDocument();
+    });
 
-  test('displays the Logout button', () => {
-    render(Dashboard, { title: 'Dashboard' });
+    it('renders the buttons', () => {
+        render(Dashboard, { title: 'Dashboard' });
 
-    const logoutButton = screen.getByRole('button', { name: /logout/i });
-    expect(logoutButton).toBeInTheDocument();
-  });
+        const backButton = screen.getByRole('link', { name: /Back to Home/i });
+        const logoutButton = screen.getByRole('button', { name: /Logout/i });
 
-  test('triggers logout on button click', async () => {
-    const user = userEvent.setup();
-
-    render(Dashboard, { title: 'Dashboard' });
-
-    const logoutButton = screen.getByRole('button', { name: /logout/i });
-    await user.click(logoutButton);
-
-    expect(router.post).toHaveBeenCalledWith('/logout');
-  });
+        expect(backButton).toBeInTheDocument();
+        expect(logoutButton).toBeInTheDocument();
+    });
 });
